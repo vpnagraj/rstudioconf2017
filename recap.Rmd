@@ -1,0 +1,407 @@
+---
+title: "rstudio::conf 2017 recap"
+author: "vp nagraj"
+date: "2/16/2017"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+---
+class: middle, center
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# <https://github.com/rstudio/rstudio-conf>
+
+---
+
+<h2> #1: tidyverse as "dialect"</h2>
+
+```{r results='hide', warning = F, message = F}
+{{ library(tidyverse) }} 
+```
+
+.pull-left[
+
+### "regular R"
+
+1. `subset()`
+
+1. `read.csv()`
+
+1. baz(bar(foo))
+
+1. data frame]
+
+.pull-right[
+
+### "tidyverse R"
+
+1. `filter()`
+
+1. `read_csv()`
+
+1. `foo %>% bar() %>% baz()`
+
+1. tibble]
+
+---
+<h2> #2: list-cols</h2>
+```{r, warning = FALSE, message = F}
+library(gapminder)
+
+gapminder %>%
+  group_by(country) %>%
+  nest() # from tidyr package
+```
+
+---
+
+<h2> #3: purrr</h2>
+
+<http://bit.ly/purrr-rstudioconf>
+
+<https://jennybc.github.io/purrr-tutorial/>
+
+**iterate a function over a list**
+
+- `map()`: returns a list
+- `map2()`: same as above but can iterate over two lists
+- `map_chr()`: returns a character vector
+- `map_lgl()`: returns a logical vector
+- `map_dbl()`: returns a numeric vector
+
+---
+
+<h2> #4: repurrrsive</h2>
+```{r, message = FALSE, warning=FALSE}
+library(purrr)
+library(repurrrsive)
+
+# how many colors are in each wes anderson movie palette?
+wesanderson %>%
+  map_int(length)
+```
+---
+
+<h2> #4: repurrrsive</h2>
+```{r}
+gap_fits <- gap_nested %>%
+  mutate(fit = map(data, ~ lm(lifeExp ~ year, data = .x)))
+
+gap_fits
+```
+---
+<h2> #5: fivevethirtyeight</h2>
+
+<https://cran.r-project.org/web/packages/fivethirtyeight/vignettes/fivethirtyeight.html>
+
+- daily_show_guests
+- fandango
+- love_actually_adj
+- pulitzer
+- tennis_players_time
+- weather_check
+- hist_ncaa_bball_casts
+- congress_age
+- airline_safety
+- trump_twitter
+- unisex_names
+- tarantino
+- nutrition_pvalues
+- *etc*
+---
+<h2> #5: fivevethirtyeight</h2>
+
+http://fivethirtyeight.com/features/a-statistical-analysis-of-the-work-of-bob-ross/
+
+```{r, eval = F}
+library(fivethirtyeight)
+library(tidyverse)
+library(ggthemes)
+
+bob_ross %>%
+  gather(feature, presence, apple_frame:wood_framed) %>%
+  group_by(feature) %>%
+  summarise(n = sum(presence), 
+            perc = round(n / nrow(bob_ross), 2)) %>%
+  filter(perc >= .02) %>%
+  mutate(perc = paste0(perc*100, "%")) %>%
+  arrange(desc(n)) %>%
+  ggplot(aes(reorder(feature,n), n, label = perc)) +
+  geom_bar(stat = "identity", fill = "dodgerblue3") +
+  geom_text(nudge_y = 12) +
+  coord_flip() +
+  theme_fivethirtyeight()
+```
+---
+<h2> #5: fivevethirtyeight</h2>
+```{r, echo = F}
+library(fivethirtyeight)
+library(tidyverse)
+library(ggthemes)
+
+bob_ross %>%
+  gather(feature, presence, apple_frame:wood_framed) %>%
+  group_by(feature) %>%
+  summarise(n = sum(presence), 
+            perc = round(n / nrow(bob_ross), 2)) %>%
+  filter(perc >= .02) %>%
+  mutate(perc = paste0(perc*100, "%")) %>%
+  arrange(desc(n)) %>%
+  ggplot(aes(reorder(feature,n), n, label = perc)) +
+  geom_bar(stat = "identity", fill = "dodgerblue3") +
+  geom_text(nudge_y = 12) +
+  coord_flip() +
+  theme_fivethirtyeight()
+```
+
+---
+
+<h2> #6: profvis</h2>
+
+<https://rstudio.github.io/profvis/>
+
+```{r, eval = FALSE}
+mylm <- function(dat, pred, resp, qqplot = FALSE) {
+  
+  stopifnot(inherits(dat, "data.frame"))
+  
+  if (is.tibble(dat)) {
+    
+    dat <- as.data.frame(dat)
+    
+  }
+  
+  fit <- lm(dat[,pred] ~ dat[,resp])
+  
+  cat("coefficients are ...\n",fit$coefficients)
+  
+  plot(dat[,pred], dat[,resp])
+  
+}
+```
+
+---
+
+<h2> #6: profvis</h2>
+
+<https://rstudio.github.io/profvis/>
+
+```{r, eval = FALSE}
+# run these lines
+# use keyboard shortcut (option + command + shift + p on MAC) to run and profile the lines
+mylm(dat = mtcars, pred = "wt", resp = "mpg")
+mylm(dat = congress_age, pred = "congress", resp = "age")
+
+# alterantively wrap in profvis() function
+profvis(mylm(dat = mtcars, pred = "wt", resp = "mpg"))
+profvis(mylm(dat = congress_age, pred = "congress", resp = "age"))
+
+```
+
+---
+
+<h2> #7: bookdown</h2>
+
+<https://bookdown.org/yihui/bookdown/>
+
+<https://ismayc.github.io/moderndiver-book/>
+
+<http://nagraj.net/bims8382-textbook/>
+
+<https://github.com/vpnagraj/bims8382-textbook>
+
+---
+<h2> #8: threejs</h2>
+
+<http://bwlewis.github.io/rthreejs/>
+
+```{r, echo = FALSE, warning=FALSE, message = FALSE}
+library(outbreaks)
+library(igraph)
+library(threejs)
+
+hospvisit <- 
+  mers.korea.2015$contacts %>%
+  filter(exposure == "Visit hospital") %>%
+  select(from,to)
+
+hospvisitll <-
+  mers.korea.2015$linelist %>%
+  filter(id %in% hospvisit$from | id %in% hospvisit$to) %>%
+  select(id)
+  
+# create graph object from data frame
+g <- graph_from_data_frame(hospvisit, vertices = hospvisitll)
+
+# remove edges from graph
+gnoe <- g - edges(1:12)
+
+# make list of graphs
+graph_list <- list(gnoe,
+                   gnoe + edge(ends(g, es = E(g), names = FALSE)[1,]), 
+                   gnoe + edge(ends(g, es = E(g), names = FALSE)[1,]) + edge(ends(g, es = E(g), names = FALSE)[2,]),
+                   gnoe + edge(ends(g, es = E(g), names = FALSE)[1,]) + edge(ends(g, es = E(g), names = FALSE)[2,]) +  edge(ends(g, es = E(g), names = FALSE)[3,]),
+                   gnoe + edge(ends(g, es = E(g), names = FALSE)[1,]) + edge(ends(g, es = E(g), names = FALSE)[2,]) +  edge(ends(g, es = E(g), names = FALSE)[3,]) + edge(ends(g, es = E(g), names = FALSE)[4,])
+                   )
+
+# plot graphs                   
+graphjs(graph_list,
+        vertex.shape="sphere", 
+        vertex.label = names(V(gnoe)),
+        edge.width=3)
+```
+
+---
+
+<h2> #8: threejs</h2>
+
+```{r, eval = FALSE}
+library(threejs)
+library(outbreaks)
+
+# prep edge attributes
+hospvisit <- 
+  mers.korea.2015$contacts %>%
+  filter(exposure == "Visit hospital") %>%
+  select(from,to)
+
+# prep node attributes
+hospvisitll <-
+  mers.korea.2015$linelist %>%
+  filter(id %in% hospvisit$from | id %in% hospvisit$to) %>%
+  select(id)
+  
+# create graph object from data frame
+g <- graph_from_data_frame(hospvisit, vertices = hospvisitll)
+
+# remove edges from graph
+gnoe <- g - edges(1:12)
+```
+
+---
+
+<h2> #8: threejs</h2>
+
+<https://bwlewis.github.io/rthreejs/animation/animation.html>
+
+```{r, eval = FALSE}
+# make list of graphs
+graph_list <- list(gnoe,
+                   gnoe + edge(ends(g, es = E(g), names = FALSE)[1,]), 
+                   gnoe + edge(ends(g, es = E(g), names = FALSE)[1,]) + edge(ends(g, es = E(g), names = FALSE)[2,]),
+                   gnoe + edge(ends(g, es = E(g), names = FALSE)[1,]) + edge(ends(g, es = E(g), names = FALSE)[2,]) +  edge(ends(g, es = E(g), names = FALSE)[3,]),
+                   gnoe + edge(ends(g, es = E(g), names = FALSE)[1,]) + edge(ends(g, es = E(g), names = FALSE)[2,]) +  edge(ends(g, es = E(g), names = FALSE)[3,]) + edge(ends(g, es = E(g), names = FALSE)[4,])
+                   )
+
+# plot graphs                   
+graphjs(graph_list,
+        vertex.shape="sphere", 
+        vertex.label = names(V(gnoe)),
+        edge.width=3)
+
+```
+---
+<h2> #8: threejs</h2>
+```{r, eval = FALSE}
+library(threejs)
+g <- make_ring(5) - edges(1:5) # five vertices, no edges
+
+graph_list <- list(
+  g + edge(1, 2),
+  g + edge(1, 2) + edge(2, 3),
+  g + edge(1, 2) + edge(2, 3) + edge(3, 4),
+  g + edge(1, 2) + edge(2, 3) + edge(3, 4) + edge(4, 5),
+  g + edge(1, 2) + edge(2, 3) + edge(3, 4) + edge(4, 5) + edge(5, 1))
+
+graphjs(graph_list, main=paste(1:5),
+        vertex.color=rainbow(5), 
+        vertex.shape="sphere", 
+        edge.width=3)
+```
+
+---
+
+<h2> #8: threejs</h2>
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+library(threejs)
+g <- make_ring(5) - edges(1:5) # five vertices, no edges
+
+graph_list <- list(
+  g + edge(1, 2),
+  g + edge(1, 2) + edge(2, 3),
+  g + edge(1, 2) + edge(2, 3) + edge(3, 4),
+  g + edge(1, 2) + edge(2, 3) + edge(3, 4) + edge(4, 5),
+  g + edge(1, 2) + edge(2, 3) + edge(3, 4) + edge(4, 5) + edge(5, 1))
+
+graphjs(graph_list, main=paste(1:5),
+        vertex.color=rainbow(5), vertex.shape="sphere", edge.width=3)
+```
+
+---
+
+<h2> #9: xaringan</h2>
+
+<http://slides.yihui.name/xaringan/>
+
+## Highlighting Code
+
+.pull-left[
+
+    `r ''````
+    nba_tattoos %>%
+      group_by(tattoos) %>%
+      summarise(n = n()) %>%
+      ggplot(aes(tattoos, n)) +
+      geom_bar(stat = "identity") +
+    {{ theme_excel() }}
+    ```
+]
+.pull-right[
+
+```{r tidy=FALSE, results = "hide", eval = FALSE}
+nba_tattoos %>%
+  group_by(tattoos) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(tattoos, n)) +
+  geom_bar(stat = "identity") +
+{{ theme_excel() }}
+```
+
+]
+
+---
+
+<h2> #9: xaringan</h2>
+
+```{r echo = FALSE}
+nba_tattoos %>%
+  group_by(tattoos) %>%
+  summarise(n = n()) %>%
+  ggplot(aes(tattoos, n)) +
+  geom_bar(stat = "identity") +
+  theme_excel()
+```
+
+---
+<h2> #10: everything else</h2>
+
+- **sparklyr**: R interface for using **dplyr** syntax in Spark (big data) queries
+
+  <http://spark.rstudio.com/>
+  
+- **shinytest**: record expected behavior of a **shiny** app to benchmark performance 
+
+  <https://rstudio.github.io/shinytest/>
+  
+- **flexdashboard**: dashboard output format for R Markdown documents
+
+  <http://rmarkdown.rstudio.com/flexdashboard/index.html>
+
+- **rcpp**: integrate C++ code with R
+
+  <http://www.rcpp.org/>

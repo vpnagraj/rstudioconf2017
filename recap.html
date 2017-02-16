@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>rstudio::conf 2017 recap</title>
+    <meta charset="utf-8">
+    <meta name="author" content="vp nagraj" />
+    <link href="libs/remark-css-0.0.1/example.css" rel="stylesheet" />
+    <script src="libs/htmlwidgets-0.8/htmlwidgets.js"></script>
+    <script src="libs/threejs-83/three.min.js"></script>
+    <script src="libs/threejs-83/Detector.js"></script>
+    <script src="libs/threejs-83/Projector.js"></script>
+    <script src="libs/threejs-83/CanvasRenderer.js"></script>
+    <script src="libs/threejs-83/TrackballControls.js"></script>
+    <script src="libs/scatterplotThree-binding-0.3.0/scatterplotThree.js"></script>
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse
+
+# rstudio::conf 2017 recap
+### vp nagraj
+### 2/16/2017
+
+---
+
+class: middle, center
+
+# &lt;https://github.com/rstudio/rstudio-conf&gt;
+
+---
+
+&lt;h2&gt; #1: tidyverse as "dialect"&lt;/h2&gt;
+
+
+```r
+* library(tidyverse)  
+```
+
+.pull-left[
+
+### "regular R"
+
+1. `subset()`
+
+1. `read.csv()`
+
+1. baz(bar(foo))
+
+1. data frame]
+
+.pull-right[
+
+### "tidyverse R"
+
+1. `filter()`
+
+1. `read_csv()`
+
+1. `foo %&gt;% bar() %&gt;% baz()`
+
+1. tibble]
+
+---
+&lt;h2&gt; #2: list-cols&lt;/h2&gt;
+
+```r
+library(gapminder)
+
+gapminder %&gt;%
+  group_by(country) %&gt;%
+  nest() # from tidyr package
+```
+
+```
+## # A tibble: 142 × 2
+##        country              data
+##         &lt;fctr&gt;            &lt;list&gt;
+## 1  Afghanistan &lt;tibble [12 × 5]&gt;
+## 2      Albania &lt;tibble [12 × 5]&gt;
+## 3      Algeria &lt;tibble [12 × 5]&gt;
+## 4       Angola &lt;tibble [12 × 5]&gt;
+## 5    Argentina &lt;tibble [12 × 5]&gt;
+## 6    Australia &lt;tibble [12 × 5]&gt;
+## 7      Austria &lt;tibble [12 × 5]&gt;
+## 8      Bahrain &lt;tibble [12 × 5]&gt;
+## 9   Bangladesh &lt;tibble [12 × 5]&gt;
+## 10     Belgium &lt;tibble [12 × 5]&gt;
+## # ... with 132 more rows
+```
+
+---
+
+&lt;h2&gt; #3: purrr&lt;/h2&gt;
+
+&lt;http://bit.ly/purrr-rstudioconf&gt;
+
+&lt;https://jennybc.github.io/purrr-tutorial/&gt;
+
+**iterate a function over a list**
+
+- `map()`: returns a list
+- `map2()`: same as above but can iterate over two lists
+- `map_chr()`: returns a character vector
+- `map_lgl()`: returns a logical vector
+- `map_dbl()`: returns a numeric vector
+
+---
+
+&lt;h2&gt; #4: repurrrsive&lt;/h2&gt;
+
+```r
+library(purrr)
+library(repurrrsive)
+
+# how many colors are in each wes anderson movie palette?
+wesanderson %&gt;%
+  map_int(length)
+```
+
+```
+##  GrandBudapest      Moonrise1         Royal1      Moonrise2     Cavalcanti 
+##              4              4              4              4              5 
+##         Royal2 GrandBudapest2      Moonrise3      Chevalier         Zissou 
+##              5              4              5              4              5 
+##   FantasticFox     Darjeeling       Rushmore   BottleRocket    Darjeeling2 
+##              5              5              5              7              5
+```
+---
+
+&lt;h2&gt; #4: repurrrsive&lt;/h2&gt;
+
+```r
+gap_fits &lt;- gap_nested %&gt;%
+  mutate(fit = map(data, ~ lm(lifeExp ~ year, data = .x)))
+
+gap_fits
+```
+
+```
+## # A tibble: 142 × 4
+##        country continent              data      fit
+##         &lt;fctr&gt;    &lt;fctr&gt;            &lt;list&gt;   &lt;list&gt;
+## 1  Afghanistan      Asia &lt;tibble [12 × 4]&gt; &lt;S3: lm&gt;
+## 2      Albania    Europe &lt;tibble [12 × 4]&gt; &lt;S3: lm&gt;
+## 3      Algeria    Africa &lt;tibble [12 × 4]&gt; &lt;S3: lm&gt;
+## 4       Angola    Africa &lt;tibble [12 × 4]&gt; &lt;S3: lm&gt;
+## 5    Argentina  Americas &lt;tibble [12 × 4]&gt; &lt;S3: lm&gt;
+## 6    Australia   Oceania &lt;tibble [12 × 4]&gt; &lt;S3: lm&gt;
+## 7      Austria    Europe &lt;tibble [12 × 4]&gt; &lt;S3: lm&gt;
+## 8      Bahrain      Asia &lt;tibble [12 × 4]&gt; &lt;S3: lm&gt;
+## 9   Bangladesh      Asia &lt;tibble [12 × 4]&gt; &lt;S3: lm&gt;
+## 10     Belgium    Europe &lt;tibble [12 × 4]&gt; &lt;S3: lm&gt;
+## # ... with 132 more rows
+```
+---
+&lt;h2&gt; #5: fivevethirtyeight&lt;/h2&gt;
+
+&lt;https://cran.r-project.org/web/packages/fivethirtyeight/vignettes/fivethirtyeight.html&gt;
+
+- daily_show_guests
+- fandango
+- love_actually_adj
+- pulitzer
+- tennis_players_time
+- weather_check
+- hist_ncaa_bball_casts
+- congress_age
+- airline_safety
+- trump_twitter
+- unisex_names
+- tarantino
+- nutrition_pvalues
+- *etc*
+---
+&lt;h2&gt; #5: fivevethirtyeight&lt;/h2&gt;
+
+http://fivethirtyeight.com/features/a-statistical-analysis-of-the-work-of-bob-ross/
+
+
+```r
+library(fivethirtyeight)
+library(tidyverse)
+library(ggthemes)
+
+bob_ross %&gt;%
+  gather(feature, presence, apple_frame:wood_framed) %&gt;%
+  group_by(feature) %&gt;%
+  summarise(n = sum(presence), 
+            perc = round(n / nrow(bob_ross), 2)) %&gt;%
+  filter(perc &gt;= .02) %&gt;%
+  mutate(perc = paste0(perc*100, "%")) %&gt;%
+  arrange(desc(n)) %&gt;%
+  ggplot(aes(reorder(feature,n), n, label = perc)) +
+  geom_bar(stat = "identity", fill = "dodgerblue3") +
+  geom_text(nudge_y = 12) +
+  coord_flip() +
+  theme_fivethirtyeight()
+```
+---
+&lt;h2&gt; #5: fivevethirtyeight&lt;/h2&gt;
+![](recap_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+
+---
+
+&lt;h2&gt; #6: profvis&lt;/h2&gt;
+
+&lt;https://rstudio.github.io/profvis/&gt;
+
+
+```r
+mylm &lt;- function(dat, pred, resp, qqplot = FALSE) {
+  
+  stopifnot(inherits(dat, "data.frame"))
+  
+  if (is.tibble(dat)) {
+    
+    dat &lt;- as.data.frame(dat)
+    
+  }
+  
+  fit &lt;- lm(dat[,pred] ~ dat[,resp])
+  
+  cat("coefficients are ...\n",fit$coefficients)
+  
+  plot(dat[,pred], dat[,resp])
+  
+}
+```
+
+---
+
+&lt;h2&gt; #6: profvis&lt;/h2&gt;
+
+&lt;https://rstudio.github.io/profvis/&gt;
+
+
+```r
+# run these lines
+# use keyboard shortcut (option + command + shift + p on MAC) to run and profile the lines
+mylm(dat = mtcars, pred = "wt", resp = "mpg")
+mylm(dat = congress_age, pred = "congress", resp = "age")
+
+# alterantively wrap in profvis() function
+profvis(mylm(dat = mtcars, pred = "wt", resp = "mpg"))
+profvis(mylm(dat = congress_age, pred = "congress", resp = "age"))
+```
+
+---
+
+&lt;h2&gt; #7: bookdown&lt;/h2&gt;
+
+&lt;https://bookdown.org/yihui/bookdown/&gt;
+
+&lt;https://ismayc.github.io/moderndiver-book/&gt;
+
+&lt;http://nagraj.net/bims8382-textbook/&gt;
+
+&lt;https://github.com/vpnagraj/bims8382-textbook&gt;
+
+---
+&lt;h2&gt; #8: threejs&lt;/h2&gt;
+
+&lt;http://bwlewis.github.io/rthreejs/&gt;
+
+<div id="htmlwidget-5ad5fce1e05309480e78" style="width:504px;height:504px;" class="scatterplotThree html-widget"></div>
+<script type="application/json" data-for="htmlwidget-5ad5fce1e05309480e78">{"x":{"NROW":13,"height":null,"width":null,"axis":false,"numticks":[6,6,6],"xticklabs":null,"yticklabs":null,"zticklabs":null,"color":["#FFA500","#FFA500","#FFA500","#FFA500","#FFA500"],"size":2,"stroke":"black","flipy":true,"grid":false,"renderer":"auto","signif":8,"bg":"white","cexsymbols":1,"xlim":[-1,1],"ylim":[-1,1],"zlim":[-1,1],"pch":["o","o","o","o","o","o","o","o","o","o","o","o","o"],"from":[[],[0],[0,0],[0,0,0],[0,0,0,0]],"to":[[],[2],[2,3],[2,3,9],[2,3,9,12]],"lwd":3,"linealpha":1,"center":true,"main":[""],"labels":["SK_1","SK_4","SK_10","SK_13","SK_15","SK_17","SK_19","SK_21","SK_22","SK_26","SK_28","SK_32","SK_33"],"alpha":[1,1,1,1,1],"vertices":[[0.038662926,-1,-1,-0.42803484,0.00054113616,-0.19149569,0.50271795,-0.36351111,0.51685942,-0.70998563,-0.11992255,0.57759899,-0.28080278,0.67131317,0.34739671,0.49240236,-0.42974147,-0.35683764,0.82414822,0.1989158,0.88426725,-0.28874213,-0.029086856,1,-0.15382239,0.66694772,-0.52515783,0.42804066,0.72823674,0.72264027,1,0.45670346,-0.011868463,0.38708575,1,-0.02036253,-1,0.50125302,0.12918685],[-0.33167436,-0.11740348,1,0.031550364,-0.88802571,-1,-0.62405166,-0.14933953,0.75289111,0.11252877,-1,-0.23396739,0.44315915,0.48926205,0.52618432,-1,-0.19049203,-0.13506998,-0.5638207,0.27164885,-0.61123142,-0.29339862,0.23403016,0.41129308,1,-0.3264025,0.25758095,0.19220196,0.034472815,-0.058371569,0.91761247,0.48132484,-0.38834479,0.38664738,1,-0.044984812,-0.21495788,0.81009418,-0.65529842],[-0.92036822,0.12352058,0.71775455,-0.014236953,-1,-0.9624634,-0.90845699,-0.30419844,0.67579752,-0.97311974,0.57253714,0.64241534,0.42344111,0.0059197736,1,0.24122516,0.12626344,-0.066104191,-0.87472479,-0.53522144,-0.57721185,-1,0.88409541,-0.35091257,-0.52805721,0.54195321,-1,0.81970563,-0.507124,0.25563843,0.21018873,1,0.48465022,0.53477913,0.60095951,-0.86034428,1,0.74464511,-0.01694839],[-0.5593534,0.087429429,0.73368174,0.23803223,-0.68327368,-1,-0.16577002,0.18921808,1,-0.35449348,-0.070015382,0.3949729,-0.29525035,-0.53387425,-0.53069574,0.99046813,-0.21614086,0.60827905,0.98006492,0.46677271,-0.31218259,0.77124106,0.68357045,0.95402358,0.46127032,-1,-0.14771167,-1,0.0038398821,0.52090184,1,0.76304001,0.14114367,-0.34578946,0.62280051,-0.54118401,-0.1122497,1,0.0054742635],[-0.67780351,-0.099768824,0.64569946,-0.28906638,-1,-1,-0.21654533,-0.3029815,0.9166134,-0.92564209,-0.28377023,0.26995009,0.4069834,-0.70814459,-0.19496507,0.44865679,0.40620525,0.55379299,1,0.068862864,0.18434541,0.60767462,0.32385588,-0.53632205,-1,0.51280821,-0.49493442,-0.95180555,0.24878141,0.41246067,0.12222855,1,-0.096382572,-0.24792444,0.55040255,-0.81866407,-0.50235357,0.087140269,1]],"xticklab":["-1.00","-0.60","-0.20","0.20","0.60","1.00"],"yticklab":["-1.00","-0.60","-0.20","0.20","0.60","1.00"],"zticklab":["1.00","0.60","0.20","-0.20","-0.60","-1.00"],"xtick":[0,0.2,0.4,0.6,0.8,1],"ytick":[0,0.2,0.4,0.6,0.8,1],"ztick":[0,0.2,0.4,0.6,0.8,1]},"evals":[],"jsHooks":[]}</script>
+
+---
+
+&lt;h2&gt; #8: threejs&lt;/h2&gt;
+
+
+```r
+library(threejs)
+library(outbreaks)
+
+# prep edge attributes
+hospvisit &lt;- 
+  mers.korea.2015$contacts %&gt;%
+  filter(exposure == "Visit hospital") %&gt;%
+  select(from,to)
+
+# prep node attributes
+hospvisitll &lt;-
+  mers.korea.2015$linelist %&gt;%
+  filter(id %in% hospvisit`\(from | id %in% hospvisit\)`to) %&gt;%
+  select(id)
+  
+# create graph object from data frame
+g &lt;- graph_from_data_frame(hospvisit, vertices = hospvisitll)
+
+# remove edges from graph
+gnoe &lt;- g - edges(1:12)
+```
+
+---
+
+&lt;h2&gt; #8: threejs&lt;/h2&gt;
+
+&lt;https://bwlewis.github.io/rthreejs/animation/animation.html&gt;
+
+
+```r
+# make list of graphs
+graph_list &lt;- list(gnoe,
+                   gnoe + edge(ends(g, es = E(g), names = FALSE)[1,]), 
+                   gnoe + edge(ends(g, es = E(g), names = FALSE)[1,]) + edge(ends(g, es = E(g), names = FALSE)[2,]),
+                   gnoe + edge(ends(g, es = E(g), names = FALSE)[1,]) + edge(ends(g, es = E(g), names = FALSE)[2,]) +  edge(ends(g, es = E(g), names = FALSE)[3,]),
+                   gnoe + edge(ends(g, es = E(g), names = FALSE)[1,]) + edge(ends(g, es = E(g), names = FALSE)[2,]) +  edge(ends(g, es = E(g), names = FALSE)[3,]) + edge(ends(g, es = E(g), names = FALSE)[4,])
+                   )
+
+# plot graphs                   
+graphjs(graph_list,
+        vertex.shape="sphere", 
+        vertex.label = names(V(gnoe)),
+        edge.width=3)
+```
+---
+&lt;h2&gt; #8: threejs&lt;/h2&gt;
+
+```r
+library(threejs)
+g &lt;- make_ring(5) - edges(1:5) # five vertices, no edges
+
+graph_list &lt;- list(
+  g + edge(1, 2),
+  g + edge(1, 2) + edge(2, 3),
+  g + edge(1, 2) + edge(2, 3) + edge(3, 4),
+  g + edge(1, 2) + edge(2, 3) + edge(3, 4) + edge(4, 5),
+  g + edge(1, 2) + edge(2, 3) + edge(3, 4) + edge(4, 5) + edge(5, 1))
+
+graphjs(graph_list, main=paste(1:5),
+        vertex.color=rainbow(5), 
+        vertex.shape="sphere", 
+        edge.width=3)
+```
+
+---
+
+&lt;h2&gt; #8: threejs&lt;/h2&gt;
+
+<div id="htmlwidget-1b9104dbe34c685f855c" style="width:504px;height:504px;" class="scatterplotThree html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1b9104dbe34c685f855c">{"x":{"NROW":5,"height":null,"width":null,"axis":false,"numticks":[6,6,6],"xticklabs":null,"yticklabs":null,"zticklabs":null,"color":[["#FF0000","#CCFF00","#00FF66","#0066FF","#CC00FF"]],"size":2,"stroke":"black","flipy":true,"grid":false,"renderer":"auto","signif":8,"bg":"white","cexsymbols":1,"xlim":[-1,1],"ylim":[-1,1],"zlim":[-1,1],"pch":["o","o","o","o","o"],"from":[[0],[0,1],[0,1,2],[0,1,2,3],[0,1,2,3,0]],"to":[[1],[1,2],[1,2,3],[1,2,3,4],[1,2,3,4,4]],"lwd":3,"linealpha":1,"center":true,"main":["1","2","3","4","5"],"alpha":[[1,1,1,1,1]],"vertices":[[-0.30976879,0.71615273,1,-0.61577461,1,0.41194354,1,-0.25192141,-0.21156335,-0.83709322,0.062224181,-1,-1,-1,0.19493993],[-1,-1,-0.36996124,-0.40976253,-0.88782533,0.29500839,-0.074389357,-0.68338694,1,-0.57324669,1,-0.47739998,1,-0.43962351,-1],[-1,-0.81393093,-1,-0.83340053,-0.8924721,0.22921482,0.023515804,-0.90623227,1,1,-1,0.46293097,-0.10592633,1,0.36661689],[-1,1,0.8186425,-0.79874587,0.32750791,1,-0.28817238,-0.36549572,0.6669135,0.37357683,-0.80481689,-0.081689294,1,-1,-1],[0.20341863,-1,-0.99336128,-1,-0.42953044,-1,-0.96891052,0.80831874,0.21206339,0.25931049,1,1,1,-0.15030011,0.22957436]],"xticklab":["-1.00","-0.60","-0.20","0.20","0.60","1.00"],"yticklab":["-1.00","-0.60","-0.20","0.20","0.60","1.00"],"zticklab":["1.00","0.60","0.20","-0.20","-0.60","-1.00"],"xtick":[0,0.2,0.4,0.6,0.8,1],"ytick":[0,0.2,0.4,0.6,0.8,1],"ztick":[0,0.2,0.4,0.6,0.8,1]},"evals":[],"jsHooks":[]}</script>
+
+---
+
+&lt;h2&gt; #9: xaringan&lt;/h2&gt;
+
+&lt;http://slides.yihui.name/xaringan/&gt;
+
+## Highlighting Code
+
+.pull-left[
+
+    ```
+    nba_tattoos %&gt;%
+      group_by(tattoos) %&gt;%
+      summarise(n = n()) %&gt;%
+      ggplot(aes(tattoos, n)) +
+      geom_bar(stat = "identity") +
+    {{ theme_excel() }}
+    ```
+]
+.pull-right[
+
+
+```r
+nba_tattoos %&gt;%
+  group_by(tattoos) %&gt;%
+  summarise(n = n()) %&gt;%
+  ggplot(aes(tattoos, n)) +
+  geom_bar(stat = "identity") +
+* theme_excel() 
+```
+
+]
+
+---
+
+&lt;h2&gt; #9: xaringan&lt;/h2&gt;
+
+![](recap_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
+
+---
+&lt;h2&gt; #10: everything else&lt;/h2&gt;
+
+- **sparklyr**: R interface for using **dplyr** syntax in Spark (big data) queries
+
+  &lt;http://spark.rstudio.com/&gt;
+  
+- **shinytest**: record expected behavior of a **shiny** app to benchmark performance 
+
+  &lt;https://rstudio.github.io/shinytest/&gt;
+  
+- **flexdashboard**: dashboard output format for R Markdown documents
+
+  &lt;http://rmarkdown.rstudio.com/flexdashboard/index.html&gt;
+
+- **rcpp**: integrate C++ code with R
+
+  &lt;http://www.rcpp.org/&gt;
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true
+});
+if (window.HTMLWidgets) slideshow.on('showSlide', function (slide) {setTimeout(function() {window.dispatchEvent(new Event('resize'));}, 100)});</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
