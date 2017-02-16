@@ -190,7 +190,7 @@ bob_ross %>%
 <https://rstudio.github.io/profvis/>
 
 ```{r, eval = FALSE}
-mylm <- function(dat, pred, resp, qqplot = FALSE) {
+mylm <- function(dat, pred, resp) {
   
   stopifnot(inherits(dat, "data.frame"))
   

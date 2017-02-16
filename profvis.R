@@ -2,7 +2,7 @@ library(profvis)
 library(tidyverse)
 library(fivethirtyeight)
 
-mylm <- function(dat, pred, resp, qqplot = FALSE) {
+mylm <- function(dat, pred, resp) {
   
   stopifnot(inherits(dat, "data.frame"))
   
