@@ -13,7 +13,7 @@ class: middle, center
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-# <https://github.com/rstudio/rstudio-conf>
+## <https://github.com/rstudio/rstudio-conf>
 
 ---
 
@@ -71,7 +71,8 @@ gapminder %>%
 - `map2()`: same as above but can iterate over two lists
 - `map_chr()`: returns a character vector
 - `map_lgl()`: returns a logical vector
-- `map_dbl()`: returns a numeric vector
+- `map_dbl()`: returns a double precison (numeric) vector
+- `map_int()`: returns an integer vector
 
 ---
 
@@ -83,15 +84,39 @@ library(repurrrsive)
 # how many colors are in each wes anderson movie palette?
 wesanderson %>%
   map_int(length)
+
 ```
 ---
 
 <h2> #4: repurrrsive</h2>
-```{r}
-gap_fits <- gap_nested %>%
+```{r, message = FALSE, warning=FALSE}
+
+# which characters are included in game of thrones dataset?
+got_chars %>%
+  map_chr(~ .x$name)
+
+```
+---
+<h2> #4: repurrrsive</h2>
+```{r, message = FALSE, warning=FALSE}
+
+got_chars %>%
+  set_names(map_chr(got_chars, "name")) %>%
+  map_lgl(~ .x$alive) %>%
+  enframe()
+
+```
+---
+
+<h2> #4: repurrrsive</h2>
+```{r, warning = FALSE, message = F}
+
+# note gap_simple is repurrrsive version of gapminder
+gap_simple %>%
+  group_by(country) %>%
+  nest() %>%
   mutate(fit = map(data, ~ lm(lifeExp ~ year, data = .x)))
 
-gap_fits
 ```
 ---
 <h2> #5: fivevethirtyeight</h2>
@@ -405,3 +430,8 @@ nba_tattoos %>%
 - **rcpp**: integrate C++ code with R
 
   <http://www.rcpp.org/>
+
+---
+class: middle
+
+## <https://www.rstudio.com/resources/webinars/#rstudioconf>
